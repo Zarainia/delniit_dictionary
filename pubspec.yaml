@@ -1,0 +1,56 @@
+name: delniit_dictionary
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.6 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path: any
+  path_provider: any
+  sqflite: any
+  sqflite_common_ffi: any
+  flutter_bloc: ^7.0.0
+  provider: any
+  context_menus: any
+  intl: any
+  intersperse: any
+  popover: any
+  inflection2: any
+  resizable_panel:
+    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/resizable_panel
+  delniit_utils:
+    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/delniit_utils
+  zarainia_utils:
+    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/zarainia_utils
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  import_sorter: any
+  change_app_package_name: ^1.1.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: Times
+      fonts:
+        - asset: fonts/times.ttf
+        - asset: fonts/timesi.ttf
+          style: italic
+        - asset: fonts/timesbd.ttf
+          weight: 700
+        - asset: fonts/timesbi.ttf
+          style: italic
+          weight: 700
+    - family: TimesNewDelniit
+      fonts:
+        - asset: fonts/TimesNewDelniit.ttf
+
+import_sorter:
+  comments: false
