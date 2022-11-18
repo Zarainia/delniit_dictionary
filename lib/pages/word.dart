@@ -4,28 +4,34 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intersperse/intersperse.dart';
 import 'package:zarainia_utils/zarainia_utils.dart';
 
+import 'package:delniit_dictionary/constants.dart' as constants;
 import 'package:delniit_dictionary/cubits/word_notes_cubit.dart';
 import 'package:delniit_dictionary/objects/word.dart';
 import 'package:delniit_dictionary/pages/dictionary.dart';
 import 'package:delniit_dictionary/theme.dart';
+import 'package:delniit_dictionary/util/utils.dart';
 import 'package:delniit_dictionary/widgets/misc.dart';
 import 'package:delniit_dictionary/widgets/page.dart';
 
 void view_word(BuildContext context, Word word) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (context) => WordPage(word: word)));
+  int device_size = get_device_size(context);
+  if (device_size > DeviceSize.MEDIUM_SMALL)
+    showDialog(context: context, builder: (context) => WordDialog(word: word));
+  else
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => WordPage(word: word)));
 }
 
-class WordNoteEditor extends StatefulWidget {
+class _WordNoteEditor extends StatefulWidget {
   Word word;
   String current_note;
 
-  WordNoteEditor({required this.word, required this.current_note});
+  _WordNoteEditor({required this.word, required this.current_note});
 
   @override
   _WordNoteEditorState createState() => _WordNoteEditorState();
 }
 
-class _WordNoteEditorState extends State<WordNoteEditor> {
+class _WordNoteEditorState extends State<_WordNoteEditor> {
   late TextEditingController controller;
   bool editing = false;
 
@@ -36,7 +42,7 @@ class _WordNoteEditorState extends State<WordNoteEditor> {
   }
 
   @override
-  void didUpdateWidget(covariant WordNoteEditor oldWidget) {
+  void didUpdateWidget(covariant _WordNoteEditor oldWidget) {
     if (oldWidget.current_note != widget.current_note) reset_text();
     super.didUpdateWidget(oldWidget);
   }
@@ -80,11 +86,13 @@ class _WordNoteEditorState extends State<WordNoteEditor> {
                 icon: Icon(Icons.close),
                 onPressed: cancel_edit,
                 color: theme_colours.CANCEL_ICON_COLOUR,
+                tooltip: "Cancel",
               ),
               IconButton(
                 icon: Icon(Icons.check),
                 onPressed: submit_edit,
                 color: theme_colours.SUBMIT_ICON_COLOUR,
+                tooltip: "Save",
               ),
               IconButton(
                 icon: Icon(Icons.delete),
@@ -92,6 +100,7 @@ class _WordNoteEditorState extends State<WordNoteEditor> {
                   controller.text = "";
                 },
                 color: theme_colours.ICON_COLOUR,
+                tooltip: "Clear",
               )
             ],
           ),
@@ -125,28 +134,10 @@ class _WordNoteEditorState extends State<WordNoteEditor> {
   }
 }
 
-class DetailRow extends StatelessWidget {
-  String label;
-  Widget value;
-
-  DetailRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        LabelText(label),
-        Flexible(child: value),
-      ],
-      crossAxisAlignment: CrossAxisAlignment.start,
-    );
-  }
-}
-
-class WordPage extends StatelessWidget {
+class _WordDisplay extends StatelessWidget {
   Word word;
 
-  WordPage({required this.word});
+  _WordDisplay({required this.word});
 
   @override
   Widget build(BuildContext context) {
@@ -199,17 +190,40 @@ class WordPage extends StatelessWidget {
           LabelText("personal note"),
           const SizedBox(height: 10),
           word.personal_note.builder(
-            (personal_note) => WordNoteEditor(word: word, current_note: personal_note ?? ""),
+            (personal_note) => _WordNoteEditor(word: word, current_note: personal_note ?? ""),
           ),
         ],
         crossAxisAlignment: CrossAxisAlignment.stretch,
       ),
     ];
 
+    return Column(
+      children: intersperse(
+        const ListDivider(),
+        sections.map(
+          (section) => Padding(
+            child: section,
+            padding: EdgeInsets.all(20),
+          ),
+        ),
+      ).toList(),
+    );
+  }
+}
+
+class WordPage extends StatelessWidget {
+  Word word;
+
+  WordPage({required this.word});
+
+  @override
+  Widget build(BuildContext context) {
+    ThemeColours theme_colours = get_theme_colours(context);
+
     return DialogPageWrapper(
       title: Row(
         children: [
-          PaddinglessSelectableText(word.name, style: theme_colours.DELNIIT_STYLE),
+          PaddinglessSelectableText(word.name, style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 24)),
           if (word.number != null)
             Transform.translate(
               offset: const Offset(0, -7),
@@ -217,20 +231,63 @@ class WordPage extends StatelessWidget {
             ),
         ],
       ),
-      child: Column(
-        children: intersperse(
-          const ListDivider(),
-          sections.map(
-            (section) => Padding(
-              child: section,
-              padding: EdgeInsets.all(20),
-            ),
-          ),
-        ).toList(),
-      ),
+      child: _WordDisplay(word: word),
       actions: [
         SaveButton(word: word, colour: theme_colours.PRIMARY_CONTRAST_COLOUR),
       ],
+    );
+  }
+}
+
+class WordDialog extends StatelessWidget {
+  Word word;
+
+  WordDialog({required this.word});
+
+  @override
+  Widget build(BuildContext context) {
+    ThemeColours theme_colours = get_theme_colours(context);
+
+    return Dialog(
+      child: ConstrainedBox(
+        child: Column(
+          children: [
+            Material(
+              child: Padding(
+                child: ZarainiaTheme.on_appbar_theme_provider(
+                  context,
+                  (context) => Column(
+                    children: [
+                      Row(
+                        children: [
+                          SaveButton(word: word, colour: theme_colours.PRIMARY_CONTRAST_COLOUR),
+                          const Spacer(),
+                          const CloseButton(),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          PaddinglessSelectableText(word.name, style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 24)),
+                          if (word.number != null)
+                            Transform.translate(
+                              offset: const Offset(0, -7),
+                              child: Text(word.number!.toString(), style: theme_colours.WORD_NUMBER_STYLE),
+                            ),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                    ],
+                  ),
+                ),
+                padding: EdgeInsets.all(10),
+              ),
+              color: theme_colours.PRIMARY_COLOUR,
+            ),
+            Expanded(child: _WordDisplay(word: word)),
+          ],
+        ),
+        constraints: const BoxConstraints(maxWidth: constants.LARGE_DIALOG_MAX_WIDTH, maxHeight: constants.LARGE_DIALOG_MAX_HEIGHT),
+      ),
     );
   }
 }

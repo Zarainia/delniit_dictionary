@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:resizable_panel/resizable_panel.dart';
 
+import 'package:delniit_dictionary/constants.dart' as constants;
+import 'package:delniit_dictionary/cubits/conjugation_metadata_cubit.dart';
+import 'package:delniit_dictionary/cubits/conjugations_cubit.dart';
 import 'package:delniit_dictionary/cubits/dictionary_cubit.dart';
 import 'package:delniit_dictionary/cubits/filter_settings_cubit.dart';
 import 'package:delniit_dictionary/cubits/pos_cubit.dart';
@@ -10,12 +14,15 @@ import 'package:delniit_dictionary/cubits/saved_cubit.dart';
 import 'package:delniit_dictionary/cubits/settings_cubit.dart';
 import 'package:delniit_dictionary/cubits/word_notes_cubit.dart';
 import 'package:delniit_dictionary/objects/settings.dart';
+import 'package:delniit_dictionary/pages/conjugations.dart';
 import 'package:delniit_dictionary/pages/dictionary.dart';
 import 'package:delniit_dictionary/theme.dart';
 import 'package:delniit_dictionary/util/utils.dart';
 import 'package:delniit_dictionary/widgets/filter.dart';
 import 'package:delniit_dictionary/widgets/page.dart';
 import 'package:delniit_dictionary/widgets/search.dart';
+
+// TODO: (IPA charts)
 
 void main() {
   runApp(MyApp());
@@ -32,6 +39,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(lazy: false, create: (_) => WordNotesCubit()),
         BlocProvider(lazy: false, create: (_) => PosCubit()),
         BlocProvider(lazy: false, create: (context) => DictionaryCubit(context)),
+        BlocProvider(lazy: false, create: (_) => ConjugationMetadataCubit()),
+        BlocProvider(lazy: false, create: (_) => ConjugationsCubit()),
       ],
       child: BlocBuilder<SettingsCubit, Settings>(builder: (context, settings) {
         return AppThemeProvider(
@@ -39,7 +48,6 @@ class MyApp extends StatelessWidget {
           primary_colour: null,
           secondary_colour: null,
           builder: (context) {
-            // init_bloc_context(context);
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               theme: get_theme_colours(context).theme,
@@ -69,27 +77,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   late TabController tab_controller;
   int tab = 0;
 
-  // Future init_database() async {
-  //   if (get_platform().is_android) {
-  //     PermissionStatus? request_result;
-  //     if (await Permission.storage.isDenied) {
-  //       request_result = await Permission.contacts.request();
-  //     }
-  //     if (await Permission.storage.isPermanentlyDenied || (request_result != null && !request_result.isGranted)) {
-  //       showDialog(
-  //         context: context,
-  //         builder: (context) {
-  //           return MessageDialog(
-  //             message: "Storage permissions are required for the app to function.",
-  //             button_text: "Close",
-  //             on_confirm: () => Navigator.of(context).pop(),
-  //           );
-  //         },
-  //       );
-  //     }
-  //   }
-  // }
-
   void on_tab_change() {
     setState(() {
       tab = tab_controller.index;
@@ -105,11 +92,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    tab_controller = TabController(length: 3, vsync: this);
+    tab_controller = TabController(length: 2, vsync: this);
     tab_controller.addListener(on_tab_change);
-    // init_database().then((_) {
-    //   refresh_blocs(context);
-    // });
   }
 
   @override
@@ -122,26 +106,37 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     Widget? filter_widget;
     Widget? search_settings_widget;
     VoidCallback? clear_search;
-    switch (tab) {
-      case 0:
-        search_widget = DictionarySearchBar();
-        filter_widget = FilterSettingsEditor(builder: DictionaryFilterSettingsBody.new);
-        search_settings_widget = SearchSettingsEditor();
-        clear_search = clear_dictionary_search;
-        break;
-    }
 
-    return MainPageWrapper(
-      child: Column(
+    Widget dictionary_page = DictionaryPage(key: Key("dictionary"));
+    Widget conjugations_page = ConjugationsPage(key: Key("conjugations"));
+
+    Widget layout;
+
+    if (device_size > DeviceSize.MEDIUM) {
+      layout = ResizablePanel(
+        left: Container(
+          child: dictionary_page,
+          decoration: BoxDecoration(
+            border: Border(
+              right: BorderSide(
+                color: Color.alphaBlend(theme_colours.BORDER_COLOUR, theme_colours.BASE_BACKGROUND_COLOUR),
+              ),
+            ),
+          ),
+        ),
+        right: conjugations_page,
+        initial_panel_size: widget.settings.left_panel_width,
+        on_update_size: (panel_size) => context.read<SettingsCubit>().edit_setting("left_panel_width", panel_size),
+        left_min_width: constants.MAIN_PANEL_MIN_WIDTH,
+        right_min_width: constants.MAIN_PANEL_MIN_WIDTH,
+      );
+    } else {
+      layout = Column(
         children: [
           Expanded(
             child: TabBarView(
               controller: tab_controller,
-              children: [
-                DictionaryPage(),
-                Container(),
-                Container(),
-              ],
+              children: [dictionary_page, conjugations_page],
             ),
           ),
           Material(
@@ -154,9 +149,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 Tab(
                   icon: Icon(Icons.view_list),
                 ),
-                Tab(
-                  icon: Text('θ', style: TextStyle(fontSize: 22)),
-                ),
               ],
               indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(color: theme_colours.ACCENT_COLOUR, width: 4),
@@ -165,9 +157,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
             color: theme_colours.PRIMARY_COLOUR,
             elevation: device_size < DeviceSize.MEDIUM_SMALL ? 8 : 0,
-          )
+          ),
         ],
-      ),
+      );
+    }
+
+    if (tab == 0 || device_size > DeviceSize.MEDIUM) {
+      search_widget = DictionarySearchBar();
+      filter_widget = FilterSettingsEditor(builder: DictionaryFilterSettingsBody.new);
+      search_settings_widget = SearchSettingsEditor();
+      clear_search = clear_dictionary_search;
+    }
+
+    return MainPageWrapper(
+      child: layout,
       search_widget: search_widget,
       search_settings_widget: search_settings_widget,
       searching_appbar_height: tab == 0 ? 136 : null,

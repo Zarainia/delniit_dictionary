@@ -26,7 +26,7 @@ class SettingsDatabaseManager {
     return Settings.fromJson(map);
   }
 
-  Future updateSetting(String key, dynamic value) async {
+  Future update_setting(String key, dynamic value) async {
     await db_is_open;
     var row = {"key": key, "value": value.toString()};
     await database.insert("settings", row, conflictAlgorithm: ConflictAlgorithm.replace);
@@ -35,7 +35,7 @@ class SettingsDatabaseManager {
   Future update_settings(Settings settings) async {
     Map<String, dynamic> json_settings = settings.toJson();
     for (var key in json_settings.keys) {
-      await updateSetting(key, json_settings[key]!);
+      await update_setting(key, json_settings[key]!);
     }
   }
 }

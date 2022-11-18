@@ -11,6 +11,7 @@ import 'package:delniit_dictionary/cubits/saved_cubit.dart';
 import 'package:delniit_dictionary/cubits/word_notes_cubit.dart';
 import 'package:delniit_dictionary/objects/word.dart';
 import 'package:delniit_dictionary/pages/note.dart';
+import 'package:delniit_dictionary/pages/settings.dart';
 import 'package:delniit_dictionary/pages/word.dart';
 import 'package:delniit_dictionary/theme.dart';
 import 'package:delniit_dictionary/widgets/misc.dart';
@@ -39,7 +40,7 @@ class MainMenuHeader extends StatelessWidget {
 
           return DrawerHeader(
             child: wotd == null
-                ? null
+                ? const LoadingIndicator(stroke_width: 15)
                 : Column(
                     children: [
                       Text("Word of the day:"),
@@ -93,7 +94,7 @@ class MenuWordEntry extends StatelessWidget {
 
     return ListTile(
       leading: Icon(icon, color: theme_colours.PRIMARY_ICON_COLOUR),
-      title: Text(word.name),
+      title: Text(word.name, style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 18)),
       onTap: () => view_word(context, word),
     );
   }
@@ -121,6 +122,7 @@ class SavedWordsSection extends StatelessWidget {
               itemBuilder: (context, i) => MenuWordEntry(word: saved_words[i], icon: icons),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
             )
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,6 +135,10 @@ class SavedWordsSection extends StatelessWidget {
 
 class MainMenu extends StatelessWidget {
   static Random randomizer = Random();
+
+  GlobalKey<ScaffoldState> scaffold_key;
+
+  MainMenu({required this.scaffold_key});
 
   void view_random_word(BuildContext context) {
     List<Word> words = context.read<DictionaryCubit>().state.values.toList();
@@ -151,6 +157,13 @@ class MainMenu extends StatelessWidget {
             builder: (context, notes) => Column(
               children: [
                 MainMenuHeader(),
+                ListTile(
+                    leading: Icon(Icons.settings, color: theme_colours.PRIMARY_ICON_COLOUR),
+                    title: Text("Settings"),
+                    onTap: () {
+                      if (scaffold_key.currentState?.isDrawerOpen ?? false) scaffold_key.currentState?.closeDrawer();
+                      view_settings(context);
+                    }),
                 ListTile(leading: Icon(Icons.shuffle, color: theme_colours.PRIMARY_ICON_COLOUR), title: Text("Random"), onTap: () => view_random_word(context)),
                 ListTile(leading: Icon(Icons.edit, color: theme_colours.PRIMARY_ICON_COLOUR), title: Text("Notes"), onTap: () => edit_note(context)),
                 if (saved_words.isNotEmpty) SavedWordsSection(title: "Saved", word_ids: saved_words, icons: Icons.star),

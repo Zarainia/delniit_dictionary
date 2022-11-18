@@ -22,18 +22,31 @@ dependencies:
   intersperse: any
   popover: any
   inflection2: any
+  dio: any
+  fast_immutable_collections: any
+  super_sliver_list: any
+  draggable_scrollbar:
+    git:
+      url: https://github.com/thielepaul/flutter-draggable-scrollbar.git
+      ref: cfd570035bf393de541d32e9b28808b5d7e602df
+  measured_size: any
+  visibility_detector: any
+  flutter_improved_scrolling: any
   resizable_panel:
-    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/resizable_panel
+    git: https://github.com/Zarainia/flutter-resizable-panel
   delniit_utils:
-    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/delniit_utils
+    git: https://github.com/Zarainia/delniit-utils-dart
   zarainia_utils:
-    path: D:/Libraries/Desktop/Computer/Programming/Dart Modules/zarainia_utils
+    git: https://github.com/Zarainia/zarainia-utils-dart
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   import_sorter: any
-  change_app_package_name: ^1.1.0
+  change_app_package_name: any
+  msix: any
+  flutter_launcher_icons: any
+#  flutter_launcher_name: any
 
 flutter:
   uses-material-design: true
@@ -54,3 +67,36 @@ flutter:
 
 import_sorter:
   comments: false
+
+msix_config:
+  display_name: Delniit Dictionary
+  publisher_display_name: Valliyv
+  identity_name: com.valliyv.delniit-dictionary
+  msix_version: 1.0.0.6
+  logo_path: icons/delniit_material_icon.png
+  capabilities: internetClient
+  execution_alias: delniit_dictionary
+  build_windows: false
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "icons/delniit_material_icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: icons/delniit_material_icon_foreground.png
+  web:
+    generate: true
+    image_path: "icons/delniit_material_icon.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "icons/delniit_material_icon.png"
+    icon_size: 256 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "icons/delniit_material_icon.png"
+
+flutter_launcher_name:
+  name: "Delniit Dictionary"

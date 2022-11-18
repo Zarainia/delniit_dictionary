@@ -72,10 +72,7 @@ class SearchSettingsEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopoverButton(
       clickable_builder: (context, onclick) {
-        return IconButton(
-          icon: Icon(Icons.settings),
-          onPressed: onclick,
-        );
+        return IconButton(icon: Icon(Icons.settings), onPressed: onclick, tooltip: "Search settings");
       },
       overlay_contents: PopoverContentsWrapper(
         header: PopoverHeader(title: "Search settings"),

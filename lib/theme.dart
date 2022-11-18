@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:zarainia_utils/zarainia_utils.dart';
 
-// TODO: light theme/settings
+final Color DEFAULT_PRIMARY_COLOUR = Colors.blueGrey[500]!;
+final Color DEFAULT_ACCENT_COLOUR = Colors.deepOrangeAccent[400]!;
 
 class ThemeColours extends ZarainiaTheme {
-  String DELNIIT_FONT = "Times New Delniit";
+  Widget Function({required Widget Function(BuildContext) builder, required String theme, Color? background_colour, required Color? primary_colour, required Color? secondary_colour}) provider =
+      AppThemeProvider.new;
+
+  String DELNIIT_FONT = "TimesNewDelniit";
   String SERIF_FONT = "Times New Roman";
   Color OPPOSITE_PRIMARY_COLOUR = Colors.black;
+  Color PRIMARY_BACKGROUND_COLOUR = Colors.black;
+  Color DIM_PRIMARY_BACKGROUND_COLOUR = Colors.black;
+  Color ACCENT_BACKGROUND_COLOUR = Colors.black;
+  Color DIM_ACCENT_BACKGROUND_COLOUR = Colors.black;
   TextStyle DELNIIT_STYLE = TextStyle();
   TextStyle SERIF_STYLE = TextStyle();
   TextStyle WORD_STYLE = TextStyle();
@@ -23,14 +30,16 @@ class ThemeColours extends ZarainiaTheme {
   ThemeColours({
     required super.theme_name,
     super.background_colour,
-    super.primary_colour,
-    super.secondary_colour,
+    Color? primary_colour,
+    Color? secondary_colour,
     required super.platform,
     required super.localizations,
   }) : super(
-          default_primary_colour: Colors.blueGrey[500]!,
-          default_accent_colour: Colors.deepOrangeAccent[400]!,
-          default_additional_colour: Colors.black,
+          primary_colour: primary_colour ?? DEFAULT_PRIMARY_COLOUR,
+          secondary_colour: secondary_colour ?? DEFAULT_ACCENT_COLOUR,
+          default_primary_colour: DEFAULT_PRIMARY_COLOUR,
+          default_accent_colour: DEFAULT_ACCENT_COLOUR,
+          default_additional_colour: DEFAULT_PRIMARY_COLOUR,
         ) {
     DELNIIT_STYLE = TextStyle(fontFamily: DELNIIT_FONT);
     SERIF_STYLE = TextStyle(fontFamily: SERIF_FONT);
@@ -40,21 +49,22 @@ class ThemeColours extends ZarainiaTheme {
     PRONUNCIATION_STYLE = SERIF_STYLE.copyWith(color: ACCENT_TEXT_COLOUR);
     DEFINITION_STYLE = SERIF_STYLE;
     LABEL_STYLE = SERIF_STYLE.copyWith(color: PRIMARY_TEXT_COLOUR);
-    BORDER_COLOUR = Color.lerp(PRIMARY_TEXT_COLOUR, null, 0.65)!;
+    BORDER_COLOUR = Color.lerp(ZarainiaTheme.make_text_colour(DEFAULT_PRIMARY_COLOUR, BASE_TEXT_COLOUR.brightness), null, 0.65)!;
+    DIVIDER_COLOUR = BORDER_COLOUR;
     OPPOSITE_PRIMARY_COLOUR = PRIMARY_COLOUR;
     if (OPPOSITE_PRIMARY_COLOUR.brightness == theme.brightness) OPPOSITE_PRIMARY_COLOUR = Color.lerp(OPPOSITE_PRIMARY_COLOUR, BASE_TEXT_COLOUR, 0.5)!;
-    theme = theme.copyWith(dividerColor: BORDER_COLOUR, dividerTheme: theme.dividerTheme.copyWith(color: BORDER_COLOUR));
-  }
-
-  static Widget on_appbar_theme_provider(BuildContext context, Widget Function(BuildContext context) child_builder, {Color? appbar_colour}) {
-    ThemeColours theme_colours = get_theme_colours(context);
-
-    return AppThemeProvider(
-      builder: (context) => child_builder(context),
-      theme: theme_colours.theme_name,
-      background_colour: appbar_colour ?? theme_colours.PRIMARY_COLOUR,
-      primary_colour: theme_colours.ACCENT_COLOUR,
-      secondary_colour: theme_colours.ACCENT_COLOUR,
+    PRIMARY_BACKGROUND_COLOUR = Color.lerp(PRIMARY_TEXT_COLOUR, null, 0.8)!;
+    DIM_PRIMARY_BACKGROUND_COLOUR = Color.lerp(PRIMARY_TEXT_COLOUR, null, 0.9)!;
+    ACCENT_BACKGROUND_COLOUR = Color.lerp(ACCENT_TEXT_COLOUR, null, 0.8)!;
+    DIM_ACCENT_BACKGROUND_COLOUR = Color.lerp(ACCENT_TEXT_COLOUR, null, 0.9)!;
+    theme = theme.copyWith(
+      dividerColor: BORDER_COLOUR,
+      dividerTheme: theme.dividerTheme.copyWith(color: BORDER_COLOUR),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: theme.outlinedButtonTheme.style?.copyWith(
+          side: MaterialStateProperty.all(BorderSide(color: BORDER_COLOUR)),
+        ),
+      ),
     );
   }
 }
@@ -86,14 +96,17 @@ class AppThemeProvider extends StatelessWidget {
     );
     return Theme(
       data: theme_colours.theme,
-      child: Provider<ZarainiaTheme>.value(
-        value: theme_colours,
-        builder: (context, widget) => builder(context),
+      child: DefaultTextStyle(
+        style: DefaultTextStyle.of(context).style.copyWith(color: theme_colours.BASE_TEXT_COLOUR),
+        child: Provider<ZarainiaTheme>.value(
+          value: theme_colours,
+          builder: (context, widget) => builder(context),
+        ),
       ),
     );
   }
 }
 
 ThemeColours get_theme_colours(BuildContext context) {
-  return context.watch<ZarainiaTheme>() as ThemeColours;
+  return get_zarainia_theme(context) as ThemeColours;
 }

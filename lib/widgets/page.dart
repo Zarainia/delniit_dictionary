@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:measured_size/measured_size.dart';
 import 'package:resizable_panel/resizable_panel.dart';
+import 'package:zarainia_utils/zarainia_utils.dart';
 
 import 'package:delniit_dictionary/constants.dart' as constants;
 import 'package:delniit_dictionary/cubits/settings_cubit.dart';
@@ -26,7 +28,7 @@ class _AppBarMenuIconState extends State<_AppBarMenuIcon> with TickerProviderSta
   @override
   void initState() {
     super.initState();
-    button_animation_controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    button_animation_controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500), value: widget.drawer_showing ? 0 : 1);
   }
 
   @override
@@ -45,53 +47,13 @@ class _AppBarMenuIconState extends State<_AppBarMenuIcon> with TickerProviderSta
       onPressed: () {
         widget.toggle_drawer();
         setState(() {
-          button_animation_controller.animateTo(widget.drawer_showing ? 0 : 1);
+          button_animation_controller.animateTo(widget.drawer_showing ? 1 : 0);
         });
       },
+      tooltip: widget.drawer_showing ? "Close drawer" : "Open drawer",
     );
   }
 }
-
-// class SearchBar<T> extends StatelessWidget {
-//   String? title;
-//   Widget Function(FilterSettingsCubit, FilterSettings)? filter_editor;
-//   TableSortSettings<T> Function(Settings)? sort_settings_getter;
-//
-//   SearchBar({this.title, this.filter_editor, this.sort_settings_getter});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     ThemeColours theme_colours = get_theme_colours(context);
-//
-//     return BlocBuilder<FilterSettingsCubit, FilterSettings>(
-//       builder: (context, filter_settings) {
-//         return Row(
-//           children: [
-//             Expanded(
-//               child: StatedTextField(
-//                 initial_text: filter_settings.search_string,
-//                 style: TextStyle(color: theme_colours.TEXT_ON_PRIMARY_COLOUR),
-//                 on_changed: context.read<FilterSettingsCubit>().update_search_string,
-//                 decoration: InputDecoration(
-//                     hintText: "Search" + (title != null ? " ${title}" : ''),
-//                     hintStyle: TextStyle(color: theme_colours.DIM_TEXT_ON_PRIMARY_COLOUR),
-//                     isDense: true,
-//                     enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: theme_colours.ON_PRIMARY_DIM_BORDER_COLOUR)),
-//                     prefixIcon: Icon(Icons.search, color: theme_colours.ICON_ON_PRIMARY_COLOUR),
-//                     contentPadding: EdgeInsets.only(top: 5)),
-//                 clearable: true,
-//                 icon_colour: theme_colours.ICON_ON_PRIMARY_COLOUR,
-//               ),
-//             ),
-//             SearchSettingsEditor(),
-//             if (filter_editor != null) FilterSettingsEditor(builder: filter_editor!),
-//             if (sort_settings_getter != null) SortSettingsEditor<T>(sort_settings_getter: sort_settings_getter!),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
 
 class MainPageWrapper<T> extends StatefulWidget {
   Widget child;
@@ -119,12 +81,22 @@ class MainPageWrapper<T> extends StatefulWidget {
 }
 
 class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
+  GlobalKey<ScaffoldState> scaffold_key = new GlobalKey<ScaffoldState>();
   bool persistent_drawer_is_showing = true;
   bool searching = false;
+  double search_widget_height = 0;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant MainPageWrapper<T> oldWidget) {
+    if (widget.search_widget == null)
+      setState(() {
+        searching = false;
+      });
   }
 
   Function(double) update_size_setting_func(String settings_tag) {
@@ -134,7 +106,6 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
   AppBar? create_appbar() {
     ThemeColours theme_colours = get_theme_colours(context);
     var device_size = get_device_size(context);
-    // if (device_size == DeviceSize.LARGE) return null;
     Widget? appbar_button;
     if (device_size == DeviceSize.MEDIUM || device_size == DeviceSize.MEDIUM_SMALL)
       appbar_button = _AppBarMenuIcon(
@@ -148,12 +119,14 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
     List<Widget> actions = [
       if (widget.search_widget != null && !searching)
         IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              setState(() {
-                searching = true;
-              });
-            }),
+          icon: Icon(Icons.search),
+          onPressed: () {
+            setState(() {
+              searching = true;
+            });
+          },
+          tooltip: "Search",
+        ),
       if (searching)
         IconButton(
             icon: Icon(Icons.close),
@@ -162,7 +135,8 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
                 searching = false;
                 widget.search_close_callback?.call();
               });
-            }),
+            },
+            tooltip: "Close search"),
       if (searching && widget.search_settings_widget != null) widget.search_settings_widget!,
     ];
     if (widget.vertical_searching_actions && searching)
@@ -171,25 +145,34 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
       ];
     else
       actions = widget.additional_actions + actions;
-    // if (device_size >= DeviceSize.MEDIUM)
-    //   actions = [OpenTOCAppbarButton(scaffold_key: outer_scaffold_key)];
-    // else if (device_size == DeviceSize.SMALL) actions = [NotebookDotsMenu(notebook: widget.selected_notebook, show_sort_bar: get_device_height(context) == DeviceHeight.LARGE)];
 
     return AppBar(
       systemOverlayStyle: theme_colours.overlay_style,
       leading: appbar_button,
-      title: searching ? widget.search_widget : Text(widget.title ?? constants.APP_NAME),
+      title: ZarainiaTheme.on_appbar_theme_provider(
+        context,
+        (context) => searching
+            ? MeasuredSize(
+                child: widget.search_widget!,
+                onChange: (size) {
+                  setState(() {
+                    search_widget_height = size.height;
+                  });
+                },
+              )
+            : Text(widget.title ?? constants.APP_NAME),
+      ),
       actions: actions,
       elevation: device_size < DeviceSize.MEDIUM_SMALL ? 8 : 0,
-      toolbarHeight: searching ? widget.searching_appbar_height : null,
+      toolbarHeight: searching ? search_widget_height + 30 : null,
       automaticallyImplyLeading: device_size > DeviceSize.SMALL || !searching,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    var drawer_contents = MainMenu();
-    var device_size = get_device_size(context);
+    Widget drawer_contents = MainMenu(scaffold_key: scaffold_key);
+    int device_size = get_device_size(context);
     bool show_menu_at_side = device_size == DeviceSize.LARGE || (device_size >= DeviceSize.MEDIUM_SMALL && persistent_drawer_is_showing);
 
     return BlocBuilder<SettingsCubit, Settings>(builder: (context, settings) {
@@ -199,10 +182,17 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
         left: show_menu_at_side
             ? Container(
                 child: drawer_contents,
-                decoration: BoxDecoration(border: Border(right: BorderSide(color: Color.alphaBlend(theme_colours.BORDER_COLOUR, theme_colours.BASE_BACKGROUND_COLOUR)))),
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                      color: Color.alphaBlend(theme_colours.BORDER_COLOUR, theme_colours.BASE_BACKGROUND_COLOUR),
+                    ),
+                  ),
+                ),
               )
             : null,
         right: Scaffold(
+          key: scaffold_key,
           appBar: create_appbar(),
           drawer: (device_size == DeviceSize.SMALL) ? Drawer(child: drawer_contents) : null,
           body: widget.child,
@@ -210,7 +200,7 @@ class _MainPageWrapperState<T> extends State<MainPageWrapper<T>> {
         initial_panel_size: settings.sidebar_width,
         on_update_size: update_size_setting_func("sidebar_width"),
         left_min_width: constants.DRAWER_MIN_WIDTH,
-        right_min_width: constants.MAIN_PANEL_MIN_WIDTH,
+        right_min_width: constants.MAIN_PANEL_MIN_WIDTH * (device_size > DeviceSize.MEDIUM ? 2 : 1),
       );
     });
   }

@@ -37,6 +37,7 @@ class FilterSettingsEditor extends StatelessWidget {
                           icon: Icon(Icons.delete),
                           onPressed: () => context.read<FilterSettingsCubit>().update_filter(FilterSettings()),
                           color: theme_colours.ICON_COLOUR,
+                          tooltip: "Clear filters",
                         ),
                       ),
                     ],
@@ -47,9 +48,11 @@ class FilterSettingsEditor extends StatelessWidget {
                   ),
                 ),
               ),
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 100, minHeight: 0),
               backgroundColor: theme_colours.theme.dialogBackgroundColor,
             );
           },
+          tooltip: "Filter",
         );
       },
       overlay_contents: const EmptyContainer(),

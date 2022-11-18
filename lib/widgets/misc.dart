@@ -53,3 +53,21 @@ class BracketedText extends StatelessWidget {
     );
   }
 }
+
+class DetailRow extends StatelessWidget {
+  String label;
+  Widget value;
+
+  DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        LabelText(label),
+        Flexible(child: value),
+      ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+}
