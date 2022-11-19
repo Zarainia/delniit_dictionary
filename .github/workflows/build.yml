@@ -43,16 +43,25 @@ jobs:
           channel: 'stable'
       - run: flutter create --platforms=android,ios .
       - run: flutter pub get
-      - run: flutter pub run change_app_package_name:main com.valliyv.delniit_dictionary
-      - run: flutter pub run flutter_launcher_name:main
-      - run: flutter pub run flutter_launcher_icons -f android_config.yaml
-      - run: echo $KEY_JKS > android/key.jks
-      - run: flutter build apk --release --no-sound-null-safety
+      - name: Set package name
+        run: flutter pub run change_app_package_name:main com.valliyv.delniit_dictionary
+      - name: Set launcher name
+        run: flutter pub run flutter_launcher_name:main
+      - name: Generate icons
+        run: flutter pub run flutter_launcher_icons -f android_config.yaml
+      - name: Decode Keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: android/key.jks
+          encodedString: ${{ secrets.KEY_JKS }}
+      - name: Build APK
+        run: flutter build apk --release --no-sound-null-safety
       - uses: actions/upload-artifact@v3
         with:
           name: delniit_dictionary.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-      - run: flutter build appbundle --release --no-sound-null-safety
+      - name: Build AppBundle
+        run: flutter build appbundle --release --no-sound-null-safety
       - uses: actions/upload-artifact@v3
         with:
           name: delniit_dictionary.aab
