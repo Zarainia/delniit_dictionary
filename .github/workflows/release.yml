@@ -12,6 +12,7 @@ jobs:
   release:
     name: Create release
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Download MSIX
         uses: actions/download-artifact@v3
