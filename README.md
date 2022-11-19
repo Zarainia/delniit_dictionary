@@ -1,16 +1,5 @@
-# delniit_dictionary
+# Delniit Dictionary app
 
-A new Flutter project.
+Cross-platform app for [Delniit](https://delniit.netlify.app/), with searchable/filterable dictionary and conjugations search, built with Flutter.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![image](https://user-images.githubusercontent.com/14959769/202874369-a3ce6248-2f6b-4557-8dd1-309da6ec4f0e.png)
