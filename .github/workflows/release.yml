@@ -23,6 +23,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: delniit_dictionary.apk
+      - run: mv app-release.apk delniit_dictionary.apk
       - name: Create release
         id: create-release
         uses: actions/create-release@v1
