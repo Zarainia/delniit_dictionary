@@ -14,12 +14,10 @@ jobs:
           channel: 'stable'
       - run: flutter config --enable-windows-desktop
       - run: flutter create --platforms=windows .
-      - run: flutter build windows --no-sound-null-safety
-      - run: Invoke-WebRequest "https://github.com/tekartik/sqflite/raw/master/sqflite_common_ffi/lib/src/windows/sqlite3.dll" -OutFile "build/windows/runner/Release/sqlite3.dll"
-      - run: flutter pub run msix:create
+      - run: ./release.ps1
       - uses: actions/upload-artifact@v3
         with:
-          name: delniit_dictionary.apk
+          name: delniit_dictionary.msix
           path: build/windows/runner/Release/delniit_dictionary.msix
   build-android:
       runs-on: ubuntu-latest
