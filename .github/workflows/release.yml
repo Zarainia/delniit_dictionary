@@ -1,8 +1,9 @@
-name: build
-run-name: Build flutter app
+name: release
+run-name: Create release
 on:
   push:
     tags:
+      - v*
 jobs:
   build:
     name: Build Flutter app

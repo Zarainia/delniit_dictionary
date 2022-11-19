@@ -49,10 +49,11 @@ jobs:
         run: flutter pub run flutter_launcher_name:main
       - name: Generate icons
         run: flutter pub run flutter_launcher_icons -f android_config.yaml
-      - name: Decode Keystore
+      - name: Decode keystore
         uses: timheuer/base64-to-file@v1
         with:
-          fileName: android/key.jks
+          fileName: key.jks
+          fileDir: android
           encodedString: ${{ secrets.KEY_JKS }}
       - name: Build APK
         run: flutter build apk --release --no-sound-null-safety
