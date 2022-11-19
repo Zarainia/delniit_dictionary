@@ -47,6 +47,7 @@ dev_dependencies:
   msix: ^3.7.0
   flutter_launcher_icons: any
   flutter_launcher_name: any
+  flutter_automation: any
 
 dependency_overrides:
   yaml: ^3.1.0
@@ -80,6 +81,7 @@ msix_config:
   capabilities: internetClient
   execution_alias: delniit_dictionary
   build_windows: false
+  certificate_path: windows/cert.pfx
 
 flutter_icons:
   android: true
