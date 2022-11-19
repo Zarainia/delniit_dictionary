@@ -13,35 +13,35 @@ jobs:
         with:
           channel: 'stable'
       - run: flutter config --enable-windows-desktop
-      - run: flutter create --platforms=windows,android .
+      - run: flutter create --platforms=windows,android,ios .
       - run: ./release.ps1
       - uses: actions/upload-artifact@v3
         with:
           name: delniit_dictionary.msix
           path: build/windows/runner/Release/delniit_dictionary.msix
   build-android:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-java@v2
-          with:
-            distribution: 'zulu'
-            java-version: '11'
-        - uses: subosito/flutter-action@v2
-          with:
-            channel: 'stable'
-        - run: flutter create --platforms=android .
-        - run: flutter pub get
-        - run: flutter pub run change_app_package_name:main com.valliyv.delniit_dictionary
-        - run: flutter pub run flutter_launcher_name:main
-        - run: pub run flutter_launcher_icons
-        - run: flutter build apk --no-sound-null-safety
-        - uses: actions/upload-artifact@v3
-          with:
-            name: delniit_dictionary.apk
-            path: build/app/outputs/flutter-apk/app-release.apk
-        - run: flutter build appbundle --no-sound-null-safety
-        - uses: actions/upload-artifact@v3
-          with:
-            name: delniit_dictionary.aab
-            path: build/app/outputs/bundle/release/app-release.aab
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - run: flutter create --platforms=android,ios .
+      - run: flutter pub get
+      - run: flutter pub run change_app_package_name:main com.valliyv.delniit_dictionary
+      - run: flutter pub run flutter_launcher_name:main
+      - run: pub run flutter_launcher_icons -f android_config.yaml
+      - run: flutter build apk --no-sound-null-safety
+      - uses: actions/upload-artifact@v3
+        with:
+          name: delniit_dictionary.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+      - run: flutter build appbundle --no-sound-null-safety
+      - uses: actions/upload-artifact@v3
+        with:
+          name: delniit_dictionary.aab
+          path: build/app/outputs/bundle/release/app-release.aab
