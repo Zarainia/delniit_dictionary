@@ -1,5 +1,5 @@
 name: build
-run-name: ${{ github.actor }} is learning GitHub Actions
+run-name: Build flutter app
 on:
   push:
     branches:
@@ -13,5 +13,5 @@ jobs:
       with:
         channel: 'stable' # or: 'beta', 'dev' or 'master'
     - run: flutter pub get
-    - run: flutter build apk
-    - run: flutter build appbundle
+    - run: flutter build apk --no-sound-null-safety
+    - run: flutter build appbundle --no-sound-null-safety
