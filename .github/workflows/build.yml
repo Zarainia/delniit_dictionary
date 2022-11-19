@@ -34,7 +34,7 @@ jobs:
       - run: flutter pub get
       - run: flutter pub run change_app_package_name:main com.valliyv.delniit_dictionary
       - run: flutter pub run flutter_launcher_name:main
-      - run: pub run flutter_launcher_icons -f android_config.yaml
+      - run: flutter pub run flutter_launcher_icons -f android_config.yaml
       - run: flutter build apk --no-sound-null-safety
       - uses: actions/upload-artifact@v3
         with:
