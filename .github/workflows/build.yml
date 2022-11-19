@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_call:
 jobs:
   build-windows:
     name: Build Windows app
