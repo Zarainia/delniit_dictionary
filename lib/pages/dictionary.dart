@@ -196,82 +196,95 @@ class _DictionaryPageState extends State<DictionaryPage> with AutomaticKeepAlive
 
     return BlocProvider(
       create: (context) => DictionaryListCubit(context),
-      child: BlocBuilder<DictionaryListCubit, List<Word>>(
-        builder: (context, words) {
-          if (words.isEmpty) return const LoadingIndicator();
-          return RefreshIndicator(
-            child: ImprovedScrolling(
-              scrollController: controller,
-              enableKeyboardScrolling: true,
-              child: DraggableScrollbar.rrect(
-                // TODO: cooler thumb?
-                // heightScrollThumb: 42,
-                // scrollThumbBuilder: (Color backgroundColor,
-                // Animation<double> thumbAnimation,
-                // Animation<double> labelAnimation,
-                // double height, {
-                // Text? labelText,
-                // BoxConstraints? labelConstraints,
-                // }) => Container(child: labelText),
-                labelTextBuilder: (offset) {
-                  return Text(
-                    visible_indices.isNotEmpty ? delniit_upper(delniit_split(words[visible_indices.min].name)[0]) : "",
-                    style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 24, color: theme_colours.TEXT_ON_ACCENT_COLOUR),
-                  );
-                },
-                labelConstraints: const BoxConstraints(maxHeight: 60, maxWidth: 60),
-                backgroundColor: theme_colours.ACCENT_COLOUR,
-                child: CustomScrollView(
-                  slivers: [
-                    SuperSliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, i) => VisibilityDetector(
-                            key: Key("list_word_${words[i].id}"),
-                            child: _WordEntry(word: words[i], last: i == words.length - 1),
-                            onVisibilityChanged: (visible) {
-                              if (visible.visibleFraction > 0)
-                                setState(() {
-                                  visible_indices.add(i);
-                                });
-                              else
-                                setState(() {
-                                  visible_indices.remove(i);
-                                });
-                            }),
-                        childCount: words.length,
-                      ),
+      child: BlocBuilder<DictionaryCubit, Map<int, Word>>(
+        builder: (context, base_words) {
+          if (base_words.isEmpty) return const LoadingIndicator();
+
+          return BlocBuilder<DictionaryListCubit, List<Word>>(
+            builder: (context, words) {
+              if (words.isEmpty)
+                return Container(
+                  child: Text("No results", style: TextStyle(color: theme_colours.PRIMARY_TEXT_COLOUR)),
+                  padding: const EdgeInsets.all(20),
+                  height: double.infinity,
+                  alignment: Alignment.topCenter,
+                );
+
+              return RefreshIndicator(
+                child: ImprovedScrolling(
+                  scrollController: controller,
+                  enableKeyboardScrolling: true,
+                  child: DraggableScrollbar.rrect(
+                    // TODO: cooler thumb?
+                    // heightScrollThumb: 42,
+                    // scrollThumbBuilder: (Color backgroundColor,
+                    // Animation<double> thumbAnimation,
+                    // Animation<double> labelAnimation,
+                    // double height, {
+                    // Text? labelText,
+                    // BoxConstraints? labelConstraints,
+                    // }) => Container(child: labelText),
+                    labelTextBuilder: (offset) {
+                      return Text(
+                        visible_indices.isNotEmpty ? delniit_upper(delniit_split(words[visible_indices.min].name)[0]) : "",
+                        style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 24, color: theme_colours.TEXT_ON_ACCENT_COLOUR),
+                      );
+                    },
+                    labelConstraints: const BoxConstraints(maxHeight: 60, maxWidth: 60),
+                    backgroundColor: theme_colours.ACCENT_COLOUR,
+                    child: CustomScrollView(
+                      slivers: [
+                        SuperSliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, i) => VisibilityDetector(
+                                key: Key("list_word_${words[i].id}"),
+                                child: _WordEntry(word: words[i], last: i == words.length - 1),
+                                onVisibilityChanged: (visible) {
+                                  if (visible.visibleFraction > 0)
+                                    setState(() {
+                                      visible_indices.add(i);
+                                    });
+                                  else
+                                    setState(() {
+                                      visible_indices.remove(i);
+                                    });
+                                }),
+                            childCount: words.length,
+                          ),
+                        ),
+                      ],
+                      controller: controller,
                     ),
-                  ],
-                  controller: controller,
+                    controller: controller,
+                  ),
                 ),
-                controller: controller,
-              ),
-            ),
-            onRefresh: () async {
-              DatabaseManager manager = DatabaseManager();
-              bool refreshed_dictionary = await manager.load_dictionary_database(false);
-              bool refreshed_conjugations = await manager.load_conjugations_database(false);
+                onRefresh: () async {
+                  DatabaseManager manager = DatabaseManager();
+                  bool refreshed_dictionary = await manager.load_dictionary_database(false);
+                  bool refreshed_conjugations = await manager.load_conjugations_database(false);
 
-              if (refreshed_dictionary) {
-                context.read<DictionaryCubit>().update();
-                context.read<PosCubit>().update();
-              }
-              if (refreshed_conjugations) {
-                context.read<ConjugationsCubit>().update();
-                context.read<ConjugationMetadataCubit>().update();
-              }
+                  if (refreshed_dictionary) {
+                    context.read<DictionaryCubit>().update();
+                    context.read<PosCubit>().update();
+                  }
+                  if (refreshed_conjugations) {
+                    context.read<ConjugationsCubit>().update();
+                    context.read<ConjugationMetadataCubit>().update();
+                  }
 
-              String message;
-              if (refreshed_dictionary && refreshed_conjugations)
-                message = "Dictionary and conjugations updated";
-              else if (refreshed_dictionary)
-                message = "Dictionary updated";
-              else if (refreshed_conjugations)
-                message = "Conjugations updated";
-              else
-                message = "No new database versions found";
+                  String message;
+                  if (refreshed_dictionary && refreshed_conjugations)
+                    message = "Dictionary and conjugations updated";
+                  else if (refreshed_dictionary)
+                    message = "Dictionary updated";
+                  else if (refreshed_conjugations)
+                    message = "Conjugations updated";
+                  else
+                    message = "No new database versions found";
 
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                },
+              );
             },
           );
         },
