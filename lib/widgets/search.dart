@@ -41,26 +41,24 @@ class SearchSettingsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, Settings>(
       builder: (context, settings) {
-        return Flexible(
-          child: ListView(
-            children: [
-              CheckboxListTile(
-                title: Text("Regex search"),
-                value: settings.regex_search,
-                onChanged: (bool? new_state) {
-                  context.read<SettingsCubit>().edit_setting("regex_search", new_state);
-                },
-              ),
-              CheckboxListTile(
-                title: Text("Case insensitive"),
-                value: settings.case_insensitive,
-                onChanged: (bool? new_state) {
-                  context.read<SettingsCubit>().edit_setting("case_insensitive", new_state);
-                },
-              ),
-            ],
-            shrinkWrap: true,
-          ),
+        return ListView(
+          children: [
+            CheckboxListTile(
+              title: Text("Regex search"),
+              value: settings.regex_search,
+              onChanged: (bool? new_state) {
+                context.read<SettingsCubit>().edit_setting("regex_search", new_state);
+              },
+            ),
+            CheckboxListTile(
+              title: Text("Case insensitive"),
+              value: settings.case_insensitive,
+              onChanged: (bool? new_state) {
+                context.read<SettingsCubit>().edit_setting("case_insensitive", new_state);
+              },
+            ),
+          ],
+          shrinkWrap: true,
         );
       },
     );

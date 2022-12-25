@@ -660,9 +660,11 @@ packages:
   zarainia_utils:
     dependency: "direct main"
     description:
-      path: "C:/Computer/Programming/Dart Modules/zarainia_utils"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: e5527ba8346812d9e6777c9775ceee802a0a1067
+      url: "https://github.com/Zarainia/zarainia-utils-dart"
+    source: git
     version: "0.0.1"
 sdks:
   dart: ">=2.18.0 <3.0.0"
