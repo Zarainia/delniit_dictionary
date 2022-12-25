@@ -13,7 +13,7 @@ import 'package:delniit_dictionary/widgets/page.dart';
 void edit_note(BuildContext context) {
   int device_size = get_device_size(context);
   if (device_size > DeviceSize.MEDIUM_SMALL)
-    showDialog(context: context, builder: (context) => NotePage(dialog: true));
+    showDialog(context: context, barrierDismissible: false, builder: (context) => NotePage(dialog: true));
   else
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => NotePage()));
 }

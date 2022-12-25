@@ -111,7 +111,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "07b12e497b60316012838c17d38ce02fb9cf7635"
+      resolved-ref: "85ce523cffaf4ef2fc5f3aff488ba2e1b95c0193"
       url: "https://github.com/Zarainia/delniit-utils-dart"
     source: git
     version: "1.0.0"
@@ -660,11 +660,9 @@ packages:
   zarainia_utils:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "5913adf846d26be9f8d99c4a9b849493c6fbc086"
-      url: "https://github.com/Zarainia/zarainia-utils-dart"
-    source: git
+      path: "C:/Computer/Programming/Dart Modules/zarainia_utils"
+      relative: false
+    source: path
     version: "0.0.1"
 sdks:
   dart: ">=2.18.0 <3.0.0"

@@ -21,14 +21,14 @@ class DictionarySearchBar extends StatelessWidget {
         SearchField(
           hint: constants.LANGUAGE_NAME,
           on_search: context.read<FilterSettingsCubit>().update_delniit_search_string,
-          style: theme_colours.DELNIIT_STYLE,
+          style: theme_colours.DELNIIT_STYLE.copyWith(fontSize: 20),
           show_search_icon: device_size > DeviceSize.SMALL,
         ),
         const SizedBox(height: 12),
         SearchField(
           hint: "English",
           on_search: context.read<FilterSettingsCubit>().update_english_search_string,
-          style: theme_colours.SERIF_STYLE,
+          style: theme_colours.SERIF_STYLE.copyWith(fontSize: 20),
           show_search_icon: device_size > DeviceSize.SMALL,
         ),
       ],

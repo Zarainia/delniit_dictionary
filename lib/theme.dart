@@ -11,7 +11,6 @@ class ThemeColours extends ZarainiaTheme {
   Widget Function({required Widget Function(BuildContext) builder, required String theme, Color? background_colour, required Color? primary_colour, required Color? secondary_colour}) provider =
       AppThemeProvider.new;
 
-  String DELNIIT_FONT = "TimesNewDelniit";
   String SERIF_FONT = "Times New Roman";
   Color OPPOSITE_PRIMARY_COLOUR = Colors.black;
   Color PRIMARY_BACKGROUND_COLOUR = Colors.black;
@@ -41,8 +40,9 @@ class ThemeColours extends ZarainiaTheme {
           default_accent_colour: DEFAULT_ACCENT_COLOUR,
           default_additional_colour: DEFAULT_PRIMARY_COLOUR,
         ) {
-    DELNIIT_STYLE = TextStyle(fontFamily: DELNIIT_FONT);
-    SERIF_STYLE = TextStyle(fontFamily: SERIF_FONT);
+    double base_font_size = 14;
+    DELNIIT_STYLE = TextStyle(fontFamily: DELNIIT_FONT, fontSize: base_font_size);
+    SERIF_STYLE = TextStyle(fontFamily: SERIF_FONT, fontSize: base_font_size);
     WORD_STYLE = DELNIIT_STYLE.copyWith(fontSize: 20);
     WORD_NUMBER_STYLE = SERIF_STYLE.copyWith(fontSize: 10);
     POS_STYLE = SERIF_STYLE.copyWith(fontStyle: FontStyle.italic, color: PRIMARY_TEXT_COLOUR);
@@ -57,6 +57,7 @@ class ThemeColours extends ZarainiaTheme {
     DIM_PRIMARY_BACKGROUND_COLOUR = Color.lerp(PRIMARY_TEXT_COLOUR, null, 0.9)!;
     ACCENT_BACKGROUND_COLOUR = Color.lerp(ACCENT_TEXT_COLOUR, null, 0.8)!;
     DIM_ACCENT_BACKGROUND_COLOUR = Color.lerp(ACCENT_TEXT_COLOUR, null, 0.9)!;
+    SEARCH_HIGHLIGHT_STYLE = TextStyle(backgroundColor: Color.lerp(ACCENT_COLOUR, null, is_dark ? 0.6 : 0.8));
     theme = theme.copyWith(
       dividerColor: BORDER_COLOUR,
       dividerTheme: theme.dividerTheme.copyWith(color: BORDER_COLOUR),

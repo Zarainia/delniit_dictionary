@@ -16,11 +16,14 @@ import 'package:delniit_dictionary/cubits/dictionary_list_cubit.dart';
 import 'package:delniit_dictionary/cubits/filter_settings_cubit.dart';
 import 'package:delniit_dictionary/cubits/pos_cubit.dart';
 import 'package:delniit_dictionary/cubits/saved_cubit.dart';
+import 'package:delniit_dictionary/cubits/settings_cubit.dart';
 import 'package:delniit_dictionary/database/database.dart';
 import 'package:delniit_dictionary/objects/filter_settings.dart';
+import 'package:delniit_dictionary/objects/settings.dart';
 import 'package:delniit_dictionary/objects/word.dart';
 import 'package:delniit_dictionary/pages/word.dart';
 import 'package:delniit_dictionary/theme.dart';
+import 'package:delniit_dictionary/util/utils.dart';
 import 'package:delniit_dictionary/widgets/misc.dart';
 
 class SaveButton extends StatelessWidget {
@@ -61,48 +64,65 @@ class _WordEntry extends StatelessWidget {
               SaveButton(word: word),
               const SizedBox(width: 10),
               Expanded(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        PaddinglessSelectableText(word.name, style: theme_colours.WORD_STYLE),
-                        if (word.number != null)
-                          Transform.translate(
-                            offset: const Offset(0, -7),
-                            child: Text(word.number!.toString(), style: theme_colours.WORD_NUMBER_STYLE),
+                child: BlocBuilder<SettingsCubit, Settings>(
+                  builder: (context, settings) => Column(
+                    children: [
+                      Row(
+                        children: [
+                          highlight_search_text(
+                            word.name,
+                            context: context,
+                            settings: settings,
+                            base_style: theme_colours.WORD_STYLE,
+                            delniit: true,
                           ),
-                        if (word.pos.isNotEmpty)
-                          Flexible(
-                            child: Padding(
-                              child: Text(
-                                "(${word.pos.join(", ")})",
-                                style: theme_colours.POS_STYLE,
-                              ),
-                              padding: const EdgeInsets.only(left: 3),
+                          if (word.number != null)
+                            Transform.translate(
+                              offset: const Offset(0, -7),
+                              child: Text(word.number!.toString(), style: theme_colours.WORD_NUMBER_STYLE),
                             ),
-                          ),
-                      ],
-                    ),
-                    if (word.pronunciation != null)
-                      Padding(
-                        child: BracketedText(
-                          left: '/',
-                          right: '/',
-                          centre: word.pronunciation!,
-                          style: theme_colours.PRONUNCIATION_STYLE,
-                        ),
-                        padding: const EdgeInsets.only(top: 5),
+                          if (word.pos.isNotEmpty)
+                            Flexible(
+                              child: Padding(
+                                child: Text(
+                                  "(${word.pos.join(", ")})",
+                                  style: theme_colours.POS_STYLE,
+                                ),
+                                padding: const EdgeInsets.only(left: 3),
+                              ),
+                            ),
+                        ],
                       ),
-                    if (word.translations.isNotEmpty)
-                      Padding(
-                        child: Column(
-                          children: word.translations.map((translation) => PaddinglessSelectableText(translation, style: theme_colours.DEFINITION_STYLE)).toList(),
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      if (word.pronunciation != null)
+                        Padding(
+                          child: BracketedText(
+                            left: '/',
+                            right: '/',
+                            centre: word.pronunciation!,
+                            style: theme_colours.PRONUNCIATION_STYLE,
+                          ),
+                          padding: const EdgeInsets.only(top: 5),
                         ),
-                        padding: const EdgeInsets.only(top: 7),
-                      )
-                  ],
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                      if (word.translations.isNotEmpty)
+                        Padding(
+                          child: Column(
+                            children: word.translations
+                                .map(
+                                  (translation) => highlight_search_text(
+                                    translation,
+                                    context: context,
+                                    settings: settings,
+                                    base_style: theme_colours.DEFINITION_STYLE,
+                                  ),
+                                )
+                                .toList(),
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                          padding: const EdgeInsets.only(top: 7),
+                        )
+                    ],
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  ),
                 ),
               ),
               if (note != null) Spacer(),
@@ -113,6 +133,7 @@ class _WordEntry extends StatelessWidget {
         padding: EdgeInsets.only(top: 20, bottom: 20, left: 10, right: 20),
         decoration: last ? null : BoxDecoration(border: Border(bottom: BorderSide(color: theme_colours.BORDER_COLOUR))),
       ),
+      focusColor: Colors.transparent,
       onTap: () => view_word(context, word),
     );
   }
@@ -175,6 +196,24 @@ class DictionaryFilterSettingsBody extends StatelessWidget {
   }
 }
 
+class _NoResultsMessage extends StatelessWidget {
+  String message;
+  TextStyle? style;
+
+  _NoResultsMessage(this.message, {this.style});
+
+  @override
+  Widget build(BuildContext context) {
+    ThemeColours theme_colours = get_theme_colours(context);
+    return Container(
+      child: Text(message, style: style ?? TextStyle(color: theme_colours.PRIMARY_TEXT_COLOUR)),
+      padding: const EdgeInsets.all(20),
+      height: double.infinity,
+      alignment: Alignment.topCenter,
+    );
+  }
+}
+
 class DictionaryPage extends StatefulWidget {
   DictionaryPage({super.key});
 
@@ -200,15 +239,16 @@ class _DictionaryPageState extends State<DictionaryPage> with AutomaticKeepAlive
         builder: (context, base_words) {
           if (base_words.isEmpty) return const LoadingIndicator();
 
-          return BlocBuilder<DictionaryListCubit, List<Word>>(
-            builder: (context, words) {
-              if (words.isEmpty)
-                return Container(
-                  child: Text("No results", style: TextStyle(color: theme_colours.PRIMARY_TEXT_COLOUR)),
-                  padding: const EdgeInsets.all(20),
-                  height: double.infinity,
-                  alignment: Alignment.topCenter,
+          return BlocBuilder<DictionaryListCubit, DictionaryListResult>(
+            builder: (context, result) {
+              if (result.error != null)
+                return _NoResultsMessage(
+                  "Regex error in search query: ${result.error!.message}",
+                  style: TextStyle(color: theme_colours.ERROR_TEXT_COLOUR),
                 );
+              else if (result.words.isEmpty) return _NoResultsMessage("No results");
+
+              List<Word> words = result.words;
 
               return RefreshIndicator(
                 child: ImprovedScrolling(
