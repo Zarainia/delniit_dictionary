@@ -38,43 +38,48 @@ class MainMenuHeader extends StatelessWidget {
         builder: (context) {
           ThemeColours theme_colours = get_theme_colours(context);
 
-          return DrawerHeader(
+          return Container(
             child: wotd == null
                 ? const LoadingIndicator(stroke_width: 15)
-                : Column(
-                    children: [
-                      Text("Word of the day:"),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                PaddinglessSelectableText(wotd.name, style: theme_colours.WORD_STYLE),
-                                if (wotd.number != null)
-                                  Transform.translate(
-                                    offset: const Offset(0, -7),
-                                    child: Text(wotd.number!.toString(), style: theme_colours.WORD_NUMBER_STYLE),
-                                  ),
-                                if (wotd.pos.isNotEmpty)
-                                  Padding(
-                                    child: Text("(${wotd.pos.join(", ")})", style: theme_colours.POS_STYLE),
-                                    padding: EdgeInsets.only(left: 5),
-                                  ),
-                              ],
-                              mainAxisAlignment: MainAxisAlignment.center,
-                            ),
-                            if (wotd.pronunciation != null)
-                              BracketedText(centre: wotd.pronunciation!, left: '/', right: '/', style: theme_colours.PRONUNCIATION_STYLE, main_alignment: MainAxisAlignment.center),
-                            if (wotd.translations.isNotEmpty) ...wotd.translations.map((translation) => PaddinglessSelectableText(translation, style: theme_colours.SERIF_STYLE)),
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                : IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        Text("Word of the day:"),
+                        Flexible(
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  PaddinglessSelectableText(wotd.name, style: theme_colours.WORD_STYLE),
+                                  if (wotd.number != null)
+                                    Transform.translate(
+                                      offset: const Offset(0, -7),
+                                      child: Text(wotd.number!.toString(), style: theme_colours.WORD_NUMBER_STYLE),
+                                    ),
+                                  if (wotd.pos.isNotEmpty)
+                                    Padding(
+                                      child: Text("(${wotd.pos.join(", ")})", style: theme_colours.POS_STYLE),
+                                      padding: EdgeInsets.only(left: 5),
+                                    ),
+                                ],
+                                mainAxisAlignment: MainAxisAlignment.center,
+                              ),
+                              if (wotd.pronunciation != null)
+                                BracketedText(centre: wotd.pronunciation!, left: '/', right: '/', style: theme_colours.PRONUNCIATION_STYLE, main_alignment: MainAxisAlignment.center),
+                              if (wotd.translations.isNotEmpty) ...wotd.translations.map((translation) => PaddinglessSelectableText(translation, style: theme_colours.SERIF_STYLE)),
+                            ],
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ),
                         ),
-                      ),
-                    ],
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                      ],
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    ),
                   ),
             decoration: BoxDecoration(color: header_colour),
+            margin: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.only(left: 18, right: 18, top: 16, bottom: 20),
+            constraints: const BoxConstraints(minHeight: 160),
           );
         },
       );

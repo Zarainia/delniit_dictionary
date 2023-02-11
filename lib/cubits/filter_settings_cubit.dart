@@ -36,7 +36,7 @@ class FilterSettingsCubit extends Cubit<FilterSettings> {
     if (!settings.regex_search) search_string = fold_case(settings, search_string, delniit_casefold: delniit);
     if (search_string.isEmpty) return [];
     if (!settings.regex_search) search_string = RegExp.escape(search_string);
-    var regex = RegExp(search_string, multiLine: true);
+    RegExp regex = RegExp(search_string, multiLine: true);
     return regex.allMatches(text).toList();
   }
 

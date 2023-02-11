@@ -48,17 +48,17 @@ class DictionaryDatabaseManager {
 
   static Word map_to_word(Map<String, dynamic> map, {List<String> pos = const [], List<String> translations = const [], required Updatable<bool> saved, required Updatable<String?> personal_note}) {
     return Word(
-      id: map["id"]!,
-      name: map["name"]!,
-      number: map["number"],
-      pronunciation: empty_null(map["pronunciation"]),
-      note: empty_null(map["notes"]),
-      etymology: empty_null(map["etymology"]),
-      pos: pos,
-      translations: translations,
-      saved: saved,
-      personal_note: personal_note,
-    );
+        id: map["id"]!,
+        name: map["name"]!,
+        number: map["number"],
+        pronunciation: empty_null(map["pronunciation"]),
+        note: empty_null(map["notes"]),
+        etymology: empty_null(map["etymology"]),
+        pos: pos,
+        translations: translations,
+        saved: saved,
+        personal_note: personal_note,
+        audio: map["audio"]);
   }
 
   Future<Set<String>> get_pos_list() async {

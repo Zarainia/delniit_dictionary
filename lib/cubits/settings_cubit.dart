@@ -11,7 +11,7 @@ class SettingsCubit extends Cubit<Settings> {
   }
 
   Future update_settings() async {
-    var new_settings = await settings_database_manager.get_settings();
+    Settings new_settings = await settings_database_manager.get_settings();
     emit(new_settings);
   }
 

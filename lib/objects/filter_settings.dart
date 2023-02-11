@@ -12,6 +12,11 @@ class FilterSettings {
     this.delniit_search_string = '',
     this.english_search_string = '',
     Set<String>? pos,
+    this.saved,
+    this.has_personal_notes,
+    this.has_etymology,
+    this.has_notes,
+    this.has_number,
   }) : pos = pos ?? {};
 
   FilterSettings copyWith({
@@ -23,6 +28,11 @@ class FilterSettings {
       delniit_search_string: delniit_search_string ?? this.delniit_search_string,
       english_search_string: english_search_string ?? this.english_search_string,
       pos: pos ?? this.pos,
+      saved: saved,
+      has_personal_notes: has_personal_notes,
+      has_etymology: has_etymology,
+      has_notes: has_notes,
+      has_number: has_number,
     );
   }
 

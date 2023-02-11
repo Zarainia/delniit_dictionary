@@ -100,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     ThemeColours theme_colours = get_theme_colours(context);
 
+    double device_width = MediaQuery.of(context).size.width;
     int device_size = get_device_size(context);
 
     Widget? search_widget;
@@ -125,8 +126,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ),
         ),
         right: conjugations_page,
-        initial_panel_size: widget.settings.left_panel_width,
-        on_update_size: (panel_size) => context.read<SettingsCubit>().edit_setting("left_panel_width", panel_size),
+        initial_panel_size: widget.settings.left_panel_width * (device_width - widget.settings.sidebar_width),
+        on_update_size: (panel_size) => context.read<SettingsCubit>().edit_setting("left_panel_width", panel_size / (device_width - widget.settings.sidebar_width)),
         left_min_width: constants.MAIN_PANEL_MIN_WIDTH,
         right_min_width: constants.MAIN_PANEL_MIN_WIDTH,
       );

@@ -17,45 +17,48 @@ class FilterSettingsEditor extends StatelessWidget {
   Widget build(BuildContext context) {
     ThemeColours theme_colours = get_theme_colours(context);
 
-    return PopoverButton(
-      clickable_builder: (context, onclick) {
-        return IconButton(
-          icon: Icon(Icons.filter_list),
-          onPressed: () {
-            FilterSettingsCubit filter_settings_cubit = context.read<FilterSettingsCubit>();
+    return BlocBuilder<FilterSettingsCubit, FilterSettings>(
+      builder: (context, settings) => PopoverButton(
+        clickable_builder: (context, onclick) {
+          return IconButton(
+            icon: Icon(Icons.filter_list),
+            color: settings.copyWith(delniit_search_string: '', english_search_string: '').is_default ? null : theme_colours.ACCENT_ICON_COLOUR,
+            onPressed: () {
+              FilterSettingsCubit filter_settings_cubit = context.read<FilterSettingsCubit>();
 
-            showPopover(
-              context: context,
-              bodyBuilder: (context) => BlocProvider<FilterSettingsCubit>(
-                create: (_) => filter_settings_cubit,
-                child: PopoverContentsWrapper(
-                  header: Row(
-                    children: [
-                      Expanded(child: PopoverHeader(title: "Filter")),
-                      Builder(
-                        builder: (context) => IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => context.read<FilterSettingsCubit>().update_filter(FilterSettings()),
-                          color: theme_colours.ICON_COLOUR,
-                          tooltip: "Clear filters",
+              showPopover(
+                context: context,
+                bodyBuilder: (context) => BlocProvider<FilterSettingsCubit>(
+                  create: (_) => filter_settings_cubit,
+                  child: PopoverContentsWrapper(
+                    header: Row(
+                      children: [
+                        Expanded(child: PopoverHeader(title: "Filter")),
+                        Builder(
+                          builder: (context) => IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () => context.read<FilterSettingsCubit>().update_filter(FilterSettings()),
+                            color: theme_colours.ICON_COLOUR,
+                            tooltip: "Clear filters",
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  body: BlocBuilder<FilterSettingsCubit, FilterSettings>(
-                    bloc: filter_settings_cubit,
-                    builder: (context, settings) => builder(filter_settings_cubit, settings),
+                      ],
+                    ),
+                    body: BlocBuilder<FilterSettingsCubit, FilterSettings>(
+                      bloc: filter_settings_cubit,
+                      builder: (context, settings) => builder(filter_settings_cubit, settings),
+                    ),
                   ),
                 ),
-              ),
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 100, minHeight: 0),
-              backgroundColor: theme_colours.theme.dialogBackgroundColor,
-            );
-          },
-          tooltip: "Filter",
-        );
-      },
-      overlay_contents: const EmptyContainer(),
+                constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 100, minHeight: 0),
+                backgroundColor: theme_colours.theme.dialogBackgroundColor,
+              );
+            },
+            tooltip: "Filter",
+          );
+        },
+        overlay_contents: const EmptyContainer(),
+      ),
     );
   }
 }

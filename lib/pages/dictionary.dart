@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import 'package:collection/collection.dart';
@@ -6,6 +8,7 @@ import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_improved_scrolling/flutter_improved_scrolling.dart';
 import 'package:super_sliver_list/super_sliver_list.dart';
+import 'package:unified_sounds/unified_sounds.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:zarainia_utils/zarainia_utils.dart';
 
@@ -43,6 +46,44 @@ class SaveButton extends StatelessWidget {
         tooltip: saved ? "Unsave" : "Save",
       ),
     );
+  }
+}
+
+class WordAudioPlayback extends StatefulWidget {
+  final Uint8List audio;
+  final double icon_size;
+  final Color? icon_colour;
+
+  const WordAudioPlayback({required this.audio, this.icon_size = 20, this.icon_colour});
+
+  @override
+  _WordAudioPlaybackState createState() => _WordAudioPlaybackState();
+}
+
+class _WordAudioPlaybackState extends State<WordAudioPlayback> {
+  AudioPlayer player = AudioPlayer();
+
+  Future play_audio() async {
+    player.reset();
+    await player.load_bytes(widget.audio);
+    player.play();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.volume_up),
+      iconSize: widget.icon_size,
+      color: widget.icon_colour,
+      onPressed: play_audio,
+      tooltip: "Play audio",
+    );
+  }
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
   }
 }
 
@@ -90,6 +131,11 @@ class _WordEntry extends StatelessWidget {
                                 ),
                                 padding: const EdgeInsets.only(left: 3),
                               ),
+                            ),
+                          if (word.audio != null && word.audio!.isNotEmpty)
+                            WordAudioPlayback(
+                              audio: word.audio!,
+                              icon_colour: theme_colours.PRIMARY_ICON_COLOUR,
                             ),
                         ],
                       ),

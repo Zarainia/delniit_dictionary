@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none'
 
-version: 1.0.2
+version: 1.1.0
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -34,6 +34,8 @@ dependencies:
   flutter_improved_scrolling: any
   resizable_panel:
     git: https://github.com/Zarainia/flutter-resizable-panel
+  unified_sounds:
+    git: https://github.com/Zarainia/unified_sounds
   delniit_utils:
     git: https://github.com/Zarainia/delniit-utils-dart
   zarainia_utils:
