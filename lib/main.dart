@@ -22,8 +22,6 @@ import 'package:delniit_dictionary/widgets/filter.dart';
 import 'package:delniit_dictionary/widgets/page.dart';
 import 'package:delniit_dictionary/widgets/search.dart';
 
-// TODO: (IPA charts)
-
 void main() {
   runApp(MyApp());
 }
